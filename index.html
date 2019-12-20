@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>File Upload in Local, AWS & CDN</title>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <a class="navbar-brand" href="/">File Upload</a>
+      
+        <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
+          <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+            <li class="nav-item active">
+              <a class="nav-link" href="/">Local <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/">AWS</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/">CDN</a>
+            </li>
+            </li>
+          </ul>
+        </div>
+      </nav>
+      <br/>
+      <div class="container">
+            <div class="jumbotron">
+                <h1 class="display-4">File upload in Local Folder</h1>
+                <p class="lead">This is a simple hero unit, a simple jumbotron-style component for calling extra attention to featured content or information.</p>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card">
+                        <h5 class="card-header">Single Image</h5>
+                        <div class="card-body">
+                            <form class="single-image-form">
+                                <p><input type="file" name="singleImage" id="singleImage" accept="image/*" /></p>
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <h5 class="card-header">Multiple Image</h5>
+                        <div class="card-body">
+                        <form class="multi-image-form">
+                            <p><input type="file" name="multiImage" id="multiImage" accept="image/*" multiple /></p>
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <h5 class="card-header">Save base64 image in DB</h5>
+                        <div class="card-body">
+                            <form class="base64-image-form">
+                                <p><input type="file" name="singleBase64Image" id="singleBase64Image" accept="image/*" /></p>
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>                 
+            </div>
+      </div>  
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Alert</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>    
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+    <script>
+        const singleImageForm = document.querySelector('.single-image-form');
+        const multiImageForm = document.querySelector('.multi-image-form');
+        const base64ImageForm = document.querySelector('.base64-image-form');
+
+        if(singleImageForm){            
+            singleImageForm.addEventListener('submit', e => {                
+                e.preventDefault();
+                const form = new FormData();
+                form.append('image', document.getElementById('singleImage').files[0]);
+                uploadImageReq(form, 'single');
+            });
+        }
+        if(base64ImageForm){            
+            base64ImageForm.addEventListener('submit', e => {                
+                e.preventDefault();
+                const form = new FormData();
+                form.append('image', document.getElementById('singleBase64Image').files[0]);
+                base64ImageReq(form);
+            });
+        }
+        if(multiImageForm){            
+            multiImageForm.addEventListener('submit', e => {                
+                e.preventDefault();
+                const form = new FormData();
+                const files = document.getElementById('multiImage').files;
+                for( var i = 0; i < files.length; i++ ){
+                    let file = files[i];
+                    form.append('multiImage', file);
+                }
+                uploadImageReq(form, 'multi');
+            });
+        }
+        const imageDownload = async(d) => {
+            downloadFile(d.getAttribute("data-val"),d.getAttribute("data-name"));
+        }
+        const uploadImageReq = async (file,type) => {
+            try{
+                const url = type === 'single' ? '/local/single' : '/local/multi';
+                const res = await axios.post(url,file);
+                if (res.data.status === 'success') {
+                    let multiRes = res.data.file;
+                    var body = '';
+                    if(type === 'single'){
+                    body += `
+                    <div class="row">
+                        <div class="col-md-12">
+                            <img src="${res.data.file}" class="img-thumbnail mx-auto d-block" height="150" width="150" />                        
+                        </div>
+                    </div>    
+                    <div class="row">
+                        <div class="col-md-12 text-center"><br/>
+                            <a href="${res.data.file}" target="_blank" type="button" class="btn btn-primary btn-sm">View</a>
+                            <button type="button" class="btn btn-primary btn-sm" onclick="imageDownload(this)" data-val="${res.data.file}" data-name="${res.data.originalname}">Download</button>
+                        </div>
+                    </div>`;
+                    } else {
+                        body += '<div class="row">';
+                            console.log(multiRes.length);
+                        for(var i = 0; i < multiRes.length; i++){
+                            body += `<div class='col-md-4'>
+                                <p><img src="${multiRes[i].filename}" class="img-thumbnail mx-auto d-block" height="150" width="150" /></p>
+                                <a href="${multiRes[i].filename}" target="_blank" type="button" class="btn btn-primary btn-sm">View</a>
+                                <button type="button" class="btn btn-primary btn-sm" onclick="imageDownload(this)" data-val="${multiRes[i].filename}" data-name="${multiRes[i].originalname}">Download</button>
+                                </div>`;
+                        }
+                        body += '</div>';
+                    }
+                    document.querySelector(".modal-body").innerHTML = body;
+                    $("#exampleModal").modal("show");
+                }
+            } catch(err){
+                alert(err.response.data.message);
+            }
+        };
+        
+        const base64ImageReq = async (file) => {
+            try{
+                const res = await axios.post('/local/image-base64',file);
+                if (res.data.status === 'success') {
+                    let multiRes = res.data.file;
+                    var body = `
+                    <div class="row">
+                        <div class="col-md-6">
+                            <img src="data:image/png;base64,${res.data.file}" class="img-thumbnail mx-auto d-block" height="150" width="150" />
+                            <div class="col-md-12 text-center"><br/>
+                                <button type="button" class="btn btn-primary btn-sm" onclick="downloadBase64(this)" data-val="${res.data.file}">Download</button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <b>Base64</b>
+                            <div style='max-width: 237px;height: 100px;word-break: break-all;overflow-x: hidden;'>data:image/png;base64,${res.data.file}</div>
+                        </div>
+                    </div>`;
+                    document.querySelector(".modal-body").innerHTML = body;
+                    $("#exampleModal").modal("show");
+                }
+            } catch(err){
+                alert(err.response.data.data);
+            }
+        };
+
+        function downloadFile(fileURL, fileName) {
+            // for non-IE
+            if (!window.ActiveXObject) {
+                var save = document.createElement('a');
+                save.href = fileURL;
+                save.target = '_blank';
+                var filename = fileURL.substring(fileURL.lastIndexOf('/')+1);
+                save.download = fileName || filename;
+                if ( navigator.userAgent.toLowerCase().match(/(ipad|iphone|safari)/) && navigator.userAgent.search("Chrome") < 0) {
+                    document.location = save.href; 
+                // window event not working here
+                }else{
+                    var evt = new MouseEvent('click', {
+                        'view': window,
+                        'bubbles': true,
+                        'cancelable': false
+                    });
+                    save.dispatchEvent(evt);
+                    (window.URL || window.webkitURL).revokeObjectURL(save.href);
+                }	
+            }
+            // for IE < 11
+            else if ( !! window.ActiveXObject && document.execCommand)     {
+                var _window = window.open(fileURL, '_blank');
+                _window.document.close();
+                _window.document.execCommand('SaveAs', true, fileName || fileURL)
+                _window.close();
+            }
+        }
+        /*const downloadFile = file_path => {  // it will not renaming the file name
+            var a = document.createElement('A');
+            a.href = file_path;
+            a.download = file_path.substr(file_path.lastIndexOf('/') + 1);
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }*/
+        function downloadBase64(d) {
+            const image = d.getAttribute("data-val");
+            const linkSource = `data:image/png;base64,${image}`;
+            const downloadLink = document.createElement("a");
+            const fileName = "base64.png";
+
+            downloadLink.href = linkSource;
+            downloadLink.download = fileName;
+            downloadLink.click();
+        }
+    </script>
+  </body>
+</html>
